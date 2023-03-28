@@ -1,14 +1,14 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { toast } from 'react-toastify';
-import { getAllJobsThunk, showStatsThunk } from './allJobsThunk';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { toast } from 'react-toastify'
+import { getAllJobsThunk, showStatsThunk } from './allJobsThunk'
 
 const initialFiltersState = {
   search: '',
   searchStatus: 'all',
   searchType: 'all',
   sort: 'latest',
-  sortOptions: ['latest', 'oldest', 'a-z', 'z-a'],
-};
+  sortOptions: ['latest', 'oldest', 'a-z', 'z-a']
+}
 
 const initialState = {
   isLoading: true,
@@ -18,71 +18,85 @@ const initialState = {
   page: 1,
   stats: {},
   monthlyApplications: [],
-  ...initialFiltersState,
-};
+  ...initialFiltersState
+}
 
-export const getAllJobs = createAsyncThunk('allJobs/getJobs', getAllJobsThunk);
+export const getAllJobs = createAsyncThunk(
+  'allJobs/getAllJobs', getAllJobsThunk
+)
 
-export const showStats = createAsyncThunk('allJobs/showStats', showStatsThunk);
+export const showStats = createAsyncThunk(
+  'allJobs/showStats', showStatsThunk
+)
 
 const allJobsSlice = createSlice({
   name: 'allJobs',
   initialState,
   reducers: {
     showLoading: (state) => {
-      state.isLoading = true;
+      state.isLoading = true
     },
     hideLoading: (state) => {
-      state.isLoading = false;
+      state.isLoading = false
     },
-    handleChange: (state, { payload: { name, value } }) => {
-      state.page = 1;
-      state[name] = value;
+    handleSearch: (state, { payload }) => {
+      const { key, value } = payload
+      state.page = 1
+      state[key] = value
     },
     clearFilters: (state) => {
-      return { ...state, ...initialFiltersState };
+      return {
+        ...state,
+        ...initialFiltersState
+      }
     },
     changePage: (state, { payload }) => {
-      state.page = payload;
+      console.log(payload)
+      state.page = payload
     },
-    clearAllJobsState: (state) => initialState,
+    clearAllJobsState: (state) => {
+      return initialState
+    }
   },
-  extraReducers: {
-    [getAllJobs.pending]: (state) => {
-      state.isLoading = true;
-    },
-    [getAllJobs.fulfilled]: (state, { payload }) => {
-      state.isLoading = false;
-      state.jobs = payload.jobs;
-      state.numOfPages = payload.numOfPages;
-      state.totalJobs = payload.totalJobs;
-    },
-    [getAllJobs.rejected]: (state, { payload }) => {
-      state.isLoading = false;
-      toast.error(payload);
-    },
-    [showStats.pending]: (state) => {
-      state.isLoading = true;
-    },
-    [showStats.fulfilled]: (state, { payload }) => {
-      state.isLoading = false;
-      state.stats = payload.defaultStats;
-      state.monthlyApplications = payload.monthlyApplications;
-    },
-    [showStats.rejected]: (state, { payload }) => {
-      state.isLoading = false;
-      toast.error(payload);
-    },
-  },
-});
+  extraReducers: (builder) => {
+    builder
+      .addCase(getAllJobs.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(getAllJobs.fulfilled, (state, { payload }) => {
+        state.isLoading = false
+        state.jobs = payload.jobs
+        state.totalJobs = payload.totalJobs
+        state.numOfPages = payload.numOfPages
+      })
+      .addCase(getAllJobs.rejected, (state, { payload }) => {
+        state.isLoading = false
+        toast.error(payload)
+      })
+
+    builder
+      .addCase(showStats.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(showStats.fulfilled, (state, { payload }) => {
+        state.isLoading = false
+        state.stats = payload.defaultStats
+        state.monthlyApplications = payload.monthlyApplications
+      })
+      .addCase(showStats.rejected, (state, { payload }) => {
+        state.isLoading = false
+        toast.error(payload)
+      })
+  }
+})
 
 export const {
   showLoading,
   hideLoading,
-  handleChange,
+  handleSearch,
   clearFilters,
   changePage,
-  clearAllJobsState,
-} = allJobsSlice.actions;
+  clearAllJobsState
+} = allJobsSlice.actions
 
-export default allJobsSlice.reducer;
+export default allJobsSlice.reducer

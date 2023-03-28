@@ -2,4 +2,4 @@
 
 # Project Homepage
 
-https://lamkashingpaul.com/jobster-api/
+https://lamkashingpaul.com/jobster/

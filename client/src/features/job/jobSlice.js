@@ -1,7 +1,8 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { toast } from 'react-toastify';
-import { getUserFromLocalStorage } from '../../utils/localStorage';
-import { createJobThunk, deleteJobThunk, editJobThunk } from './jobThunk';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { toast } from 'react-toastify'
+import { getUserFromLocalStorage } from '../../utils/localStorage'
+import { createJobThunk, deleteJobThunk, editJobThunk } from './jobThunk'
+
 const initialState = {
   isLoading: false,
   position: '',
@@ -12,64 +13,80 @@ const initialState = {
   statusOptions: ['interview', 'declined', 'pending'],
   status: 'pending',
   isEditing: false,
-  editJobId: '',
-};
+  editJobId: ''
+}
 
-export const createJob = createAsyncThunk('job/createJob', createJobThunk);
+export const createJob = createAsyncThunk(
+  'job/createJob', createJobThunk
+)
 
-export const deleteJob = createAsyncThunk('job/deleteJob', deleteJobThunk);
+export const deleteJob = createAsyncThunk(
+  'job/deleteJob', deleteJobThunk
+)
 
-export const editJob = createAsyncThunk('job/editJob', editJobThunk);
+export const editJob = createAsyncThunk(
+  'job/editJob', editJobThunk
+)
 
 const jobSlice = createSlice({
   name: 'job',
   initialState,
   reducers: {
-    handleChange: (state, { payload: { name, value } }) => {
-      state[name] = value;
-    },
-    clearValues: () => {
+    clearJob: () => {
       return {
         ...initialState,
-        jobLocation: getUserFromLocalStorage()?.location || '',
-      };
+        jobLocation: getUserFromLocalStorage()?.location || ''
+      }
+    },
+    updateJob: (state, { payload }) => {
+      const { key, value } = payload
+      state[key] = value
     },
     setEditJob: (state, { payload }) => {
-      return { ...state, isEditing: true, ...payload };
-    },
+      return {
+        ...state,
+        ...payload,
+        isEditing: true
+      }
+    }
   },
-  extraReducers: {
-    [createJob.pending]: (state) => {
-      state.isLoading = true;
-    },
-    [createJob.fulfilled]: (state) => {
-      state.isLoading = false;
-      toast.success('Job Created');
-    },
-    [createJob.rejected]: (state, { payload }) => {
-      state.isLoading = false;
-      toast.error(payload);
-    },
-    [deleteJob.fulfilled]: (state, { payload }) => {
-      toast.success(payload);
-    },
-    [deleteJob.rejected]: (state, { payload }) => {
-      toast.error(payload);
-    },
-    [editJob.pending]: (state) => {
-      state.isLoading = true;
-    },
-    [editJob.fulfilled]: (state) => {
-      state.isLoading = false;
-      toast.success('Job Modified...');
-    },
-    [editJob.rejected]: (state, { payload }) => {
-      state.isLoading = false;
-      toast.error(payload);
-    },
-  },
-});
+  extraReducers: (builder) => {
+    builder
+      .addCase(createJob.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(createJob.fulfilled, (state) => {
+        state.isLoading = false
+        toast.success('job created')
+      })
+      .addCase(createJob.rejected, (state, { payload }) => {
+        state.isLoading = false
+        toast.error(payload)
+      })
 
-export const { handleChange, clearValues, setEditJob } = jobSlice.actions;
+    builder
+      .addCase(deleteJob.fulfilled, (state, { payload }) => {
+        toast.success(payload)
+      })
+      .addCase(deleteJob.rejected, (state, { payload }) => {
+        toast.error(payload)
+      })
 
-export default jobSlice.reducer;
+    builder
+      .addCase(editJob.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(editJob.fulfilled, (state, { payload }) => {
+        state.isLoading = false
+        toast.success('job modified')
+      })
+      .addCase(editJob.rejected, (state, { payload }) => {
+        state.isLoading = false
+        toast.error(payload)
+      })
+  }
+})
+
+export const { clearJob, updateJob, setEditJob } = jobSlice.actions
+
+export default jobSlice.reducer
